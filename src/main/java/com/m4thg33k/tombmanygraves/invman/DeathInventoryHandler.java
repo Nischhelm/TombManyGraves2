@@ -19,6 +19,8 @@ import net.minecraftforge.common.DimensionManager;
 
 public class DeathInventoryHandler {
 
+    private static final String LEGACY_DIR = "./TombManyGraves/savedInventories";
+
     private static File getSaveDir()
     {
         File worldDir = DimensionManager.getCurrentSaveRootDirectory();
@@ -27,11 +29,47 @@ public class DeathInventoryHandler {
             return null;
         }
         File dir = new File(worldDir, Names.MODID + "/savedInventories");
-        if (!dir.exists() && !dir.mkdirs())
+        if (!dir.exists())
         {
-            return null;
+            if (!dir.mkdirs())
+            {
+                return null;
+            }
+            importLegacy(dir);
         }
         return dir;
+    }
+
+    // Saves used to be stored in the instance dir
+    private static void importLegacy(File dir)
+    {
+        File[] legacy = new File(LEGACY_DIR).listFiles((d, name) -> name.endsWith(".json"));
+        if (legacy == null || legacy.length == 0)
+        {
+            return;
+        }
+        int imported = 0;
+        for (File file : legacy)
+        {
+            try
+            {
+                Files.copy(file.toPath(), new File(dir, file.getName()).toPath());
+                imported++;
+            }
+            catch (Exception e)
+            {
+                LogHelper.warn("Could not import " + file + ": " + e);
+            }
+        }
+        LogHelper.info("Imported " + imported + " inventory saves from " + LEGACY_DIR);
+        if (imported < legacy.length)
+        {
+            LogHelper.warn("Not all inventory saves could be imported, leaving " + LEGACY_DIR + " in place");
+        }
+        else if (!new File(LEGACY_DIR).renameTo(new File(LEGACY_DIR + "_imported")))
+        {
+            LogHelper.warn("Could not rename " + LEGACY_DIR + " after importing it");
+        }
     }
 
     private static File getFile(String playerName, String timestamp)

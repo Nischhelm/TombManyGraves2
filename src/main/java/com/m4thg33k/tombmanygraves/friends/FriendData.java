@@ -1,5 +1,13 @@
 package com.m4thg33k.tombmanygraves.friends;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InvalidClassException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,6 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.m4thg33k.tombmanygraves.Names;
+import com.m4thg33k.tombmanygraves.util.LogHelper;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -19,6 +28,7 @@ import net.minecraftforge.common.util.Constants;
 public class FriendData extends WorldSavedData {
 
     private static final String NAME = Names.MODID + "_friends";
+    private static final String LEGACY_FILE = "./TombManyGraves/friends.fdat";
     private static final String OWNER = "Owner";
     private static final String FRIENDS = "Friends";
 
@@ -36,9 +46,61 @@ public class FriendData extends WorldSavedData {
         if (data == null)
         {
             data = new FriendData(NAME);
+            data.importLegacy();
             storage.setData(NAME, data);
         }
         return data;
+    }
+
+    // Friends used to be stored as a java-serialized HashMap<UUID, HashSet<UUID>> in the instance dir
+    @SuppressWarnings("unchecked")
+    private void importLegacy()
+    {
+        File file = new File(LEGACY_FILE);
+        if (!file.isFile())
+        {
+            return;
+        }
+        try (ObjectInputStream in = new LegacyInputStream(new FileInputStream(file)))
+        {
+            Map<UUID, Set<UUID>> legacy = (Map<UUID, Set<UUID>>) in.readObject();
+            for (Map.Entry<UUID, Set<UUID>> entry : legacy.entrySet())
+            {
+                getFriends(entry.getKey()).addAll(entry.getValue());
+            }
+            markDirty();
+            LogHelper.info("Imported friend lists of " + legacy.size() + " players from " + LEGACY_FILE);
+        }
+        catch (Exception e)
+        {
+            LogHelper.warn("Could not import friend lists from " + LEGACY_FILE + ": " + e);
+            return;
+        }
+        if (!file.renameTo(new File(LEGACY_FILE + ".imported")))
+        {
+            LogHelper.warn("Could not rename " + LEGACY_FILE + " after importing it");
+        }
+    }
+
+    private static class LegacyInputStream extends ObjectInputStream
+    {
+        private static final Set<String> ALLOWED = new HashSet<>(Arrays.asList(
+                HashMap.class.getName(), HashSet.class.getName(), UUID.class.getName()));
+
+        LegacyInputStream(InputStream in) throws IOException
+        {
+            super(in);
+        }
+
+        @Override
+        protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException
+        {
+            if (!ALLOWED.contains(desc.getName()))
+            {
+                throw new InvalidClassException(desc.getName(), "Unexpected class in legacy friends file");
+            }
+            return super.resolveClass(desc);
+        }
     }
 
     public Set<UUID> getFriends(UUID owner)
