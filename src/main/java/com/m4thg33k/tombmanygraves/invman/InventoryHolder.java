@@ -22,6 +22,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 
 public class InventoryHolder {
     public static final String TAG_NAME = "InventoryHolder";
@@ -68,7 +69,8 @@ public class InventoryHolder {
     public List<ItemStack> getAllItems(){
     	List<ItemStack> list = new ArrayList<>();
     	for(String key : compound.getKeySet()){
-    		TempInventory inv = new TempInventory(compound.getTagList(key, 10));
+    		if(compound.getTagId(key) != Constants.NBT.TAG_LIST) continue;
+    		TempInventory inv = new TempInventory(compound.getTagList(key, Constants.NBT.TAG_COMPOUND));
     		list.addAll(inv.getListOfNonEmptyItemStacks());
     	}
     	return list;
@@ -76,7 +78,8 @@ public class InventoryHolder {
     
     public void ensure(List<EntityItem> drops){
     	for(String key : compound.getKeySet()){
-    		TempInventory inv = new TempInventory(compound.getTagList(key, 10));
+    		if(compound.getTagId(key) != Constants.NBT.TAG_LIST) continue;
+    		TempInventory inv = new TempInventory(compound.getTagList(key, Constants.NBT.TAG_COMPOUND));
     		for(int i = 0; i < inv.getSizeInventory(); i++){
     			boolean contains = false;
     			for(EntityItem itm : drops){
