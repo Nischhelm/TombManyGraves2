@@ -94,26 +94,6 @@ public class DeathInventoryHandler {
         return didWork;
     }
 
-    public static List<String> getSavedInventories()
-    {
-        List<String> saved = new ArrayList<>();
-        boolean doesPathExist = checkFilePath();
-        if (!doesPathExist)
-        {
-            return saved;
-        }
-        String[] files = new File(FILE_PREFIX).list();
-        for (String file : files)
-        {
-            if (file.endsWith(".json"))
-            {
-                saved.add(file);
-            }
-        }
-
-        return saved;
-    }
-
     public static List<String> getFilenames(String playerName)
     {
         List<String> saved = new ArrayList<>();

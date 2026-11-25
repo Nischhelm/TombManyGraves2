@@ -1,7 +1,5 @@
 package com.m4thg33k.tombmanygraves.proxy;
 
-import java.util.List;
-
 import org.lwjgl.util.vector.Vector3f;
 
 import com.m4thg33k.tombmanygraves.ModConfigs;
@@ -10,12 +8,10 @@ import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.events.CommonEvents;
 import com.m4thg33k.tombmanygraves.friends.FriendHandler;
 import com.m4thg33k.tombmanygraves.gui.ModGuiHandler;
-import com.m4thg33k.tombmanygraves.invman.DeathInventoryHandler;
 import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.network.TMGNetwork;
 import com.m4thg33k.tombmanygraves.tiles.ModTiles;
 
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -45,12 +41,6 @@ public class CommonProxy {
     public void postinit(FMLPostInitializationEvent e)
     {
 
-    }
-
-    public List<String> probeForFiles(BlockPos pos)
-    {
-//        LogHelper.info("Probing for files in Common!");
-        return DeathInventoryHandler.getSavedInventories();
     }
 
     public void particleStream(Vector3f start, Vector3f end)
