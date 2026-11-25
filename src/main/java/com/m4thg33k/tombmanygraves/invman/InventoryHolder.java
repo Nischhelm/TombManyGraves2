@@ -76,16 +76,20 @@ public class InventoryHolder {
     	return list;
     }
     
-    public void ensure(List<EntityItem> drops){
+    // Removes items that are not part of the actual drops and returns the drops that belong to this holder
+    public List<EntityItem> ensure(List<EntityItem> drops){
+    	List<EntityItem> unmatched = new ArrayList<>(drops);
+    	List<EntityItem> matched = new ArrayList<>();
     	for(String key : compound.getKeySet()){
     		if(compound.getTagId(key) != Constants.NBT.TAG_LIST) continue;
     		TempInventory inv = new TempInventory(compound.getTagList(key, Constants.NBT.TAG_COMPOUND));
     		for(int i = 0; i < inv.getSizeInventory(); i++){
     			boolean contains = false;
-    			for(EntityItem itm : drops){
+    			for(EntityItem itm : unmatched){
     				if(ItemStack.areItemStacksEqual(inv.getStackInSlot(i), itm.getItem())){
     					contains = true;
-    					drops.remove(itm);
+    					unmatched.remove(itm);
+    					matched.add(itm);
     					break;
     				}
     			}
@@ -98,6 +102,7 @@ public class InventoryHolder {
     		compound.setTag(key, list);
     	}
     	isEmpty = getAllItems().isEmpty();
+    	return matched;
     }
 
     public void grabPlayerData(EntityPlayer player, BlockPos pos) {

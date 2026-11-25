@@ -94,16 +94,6 @@ public class DeathInventoryHandler {
         return didWork;
     }
 
-    public static void clearLatest(EntityPlayer player)
-    {
-        String filename = "/" + player.getName();
-        String timestamp = "latest";
-        String filePostfix = timestamp + ".json";
-
-        String fullFilename = FILE_PREFIX + filename + "#" + filePostfix;
-        writePortion(fullFilename, "{}");
-    }
-
     public static List<String> getSavedInventories()
     {
         List<String> saved = new ArrayList<>();
