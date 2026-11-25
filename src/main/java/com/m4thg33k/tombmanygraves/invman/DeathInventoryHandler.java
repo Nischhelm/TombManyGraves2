@@ -14,14 +14,10 @@ import java.util.List;
 
 import com.m4thg33k.tombmanygraves.ModConfigs;
 import com.m4thg33k.tombmanygraves.items.ModItems;
-import com.m4thg33k.tombmanygraves.util.ChatHelper;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
 
 public class DeathInventoryHandler {
 
@@ -141,69 +137,6 @@ public class DeathInventoryHandler {
 					e.printStackTrace();
 				}
 		}
-    }
-
-    public static boolean getDeathList(EntityPlayer playerOld, EntityPlayer playerNew, String playerName, String timestamp, boolean didDie)
-    {
-        boolean didWork = true;
-
-        String filename = FILE_PREFIX + "/" + playerName + "#" + timestamp + ".json";
-
-        BufferedReader reader;
-
-        try
-        {
-            reader = new BufferedReader(new FileReader(filename));
-            String fileData = reader.readLine();
-            NBTTagCompound allNBT = JsonToNBT.getTagFromJson(fileData);
-            if (allNBT.getKeySet().size() > 0)
-            {
-                ItemStack theList = new ItemStack(ModItems.itemDeathList, 1);
-                theList.setTagCompound(allNBT);
-
-                BlockPos pos = playerOld.getPosition();
-                EntityPlayer thePlayer = playerOld;
-                if (didDie)
-                {
-                    thePlayer = playerNew;
-//                    LogHelper.info("Player respawn dimension: " + playerOld.getSpawnDimension());
-//                    LogHelper.info("Player respawn dimension: " + playerOld.world.provider.getRespawnDimension((EntityPlayerMP)playerOld));
-//                    LogHelper.info(playerOld.hasSpawnDimension());
-//                    BlockPos bedPos = player.getBedLocation(player.getSpawnDimension());
-                    BlockPos bedPos = playerOld.getBedLocation(playerOld.world.provider.getDimension());
-                    if (bedPos != null)
-                    {
-//                        LogHelper.info("A " + bedPos.toString());
-                        pos = bedPos;
-                    }
-                    else
-                    {
-                        bedPos = playerOld.getBedLocation(playerOld.getSpawnDimension());
-                        if (bedPos != null){
-//                            LogHelper.info("B " + bedPos.toString());
-                            pos = bedPos;
-                        } else {
-                            pos = playerOld.world.getSpawnPoint();
-                        }
-                    }
-                }
-                EntityItem entityItem = new EntityItem(thePlayer.world, pos.getX(), pos.getY(), pos.getZ(), theList);
-                thePlayer.world.spawnEntity(entityItem);
-//                EntityItem entityItem = new EntityItem(playerOld.world, pos.getX(), pos.getY(), pos.getZ(), theList);
-//                playerOld.world.spawnEntity(entityItem);
-//                LogHelper.info("Spawning Death List in world: " + thePlayer.world.provider.getDimension() + " at location: " + pos.toString());
-            }
-            else
-            {
-                ChatHelper.sayMessage(playerOld.world, playerOld, playerName + " had no items upon death!");
-            }
-            reader.close();
-        }
-        catch (Exception e)
-        {
-            didWork = false;
-        }
-        return didWork;
     }
 
     public static NBTTagCompound getSavedInventoryAsNBT(String playerName, String timestamp)
