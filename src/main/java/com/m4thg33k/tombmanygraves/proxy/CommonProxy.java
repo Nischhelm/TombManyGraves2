@@ -6,7 +6,6 @@ import com.m4thg33k.tombmanygraves.ModConfigs;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.events.CommonEvents;
-import com.m4thg33k.tombmanygraves.friends.FriendHandler;
 import com.m4thg33k.tombmanygraves.gui.ModGuiHandler;
 import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.network.TMGNetwork;
@@ -22,7 +21,6 @@ public class CommonProxy {
 
     public void preinit(FMLPreInitializationEvent e)
     {
-        FriendHandler.importFriendsList();
         ModConfigs.preInit(e);
         TMGNetwork.setup();
         ModItems.createItems();
@@ -33,7 +31,6 @@ public class CommonProxy {
     {
         NetworkRegistry.INSTANCE.registerGuiHandler(TombManyGraves.INSTANCE, new ModGuiHandler());
         MinecraftForge.EVENT_BUS.register(new CommonEvents());
-        MinecraftForge.EVENT_BUS.register(new FriendHandler());
 
         ModTiles.init();
     }
